@@ -1,31 +1,79 @@
 const val numRow = 8
 const val numCol = 8
-private lateinit var field: Array<Array<String>>
+private lateinit var board: Array<Array<String>>
 
 fun main() {
-    field = Array(numRow) { Array(numCol) { "" } }
-    fillFieldEmptiesCells(field)
-    printField(field)
+    board = Array(numRow) { Array(numCol) { "" } }
+    fillBoardEmptiesCells()
+    printField()
+    makeStartStateBoard()
+    printField()
 }
 
-fun fillFieldEmptiesCells(field: Array<Array<String>>) : Array<Array<String>> {
+fun makeStartStateBoard(){
+    board[0][0] = "♖"
+    board[0][7] = "♖"
+    board[7][7] = "♜"
+    board[7][0] = "♜"
+
+    board[0][1] = "♘"
+    board[0][6] = "♘"
+    board[7][1] = "♞"
+    board[7][6] = "♞"
+
+    board[0][2] = "♗"
+    board[0][5] = "♗"
+    board[7][2] = "♝"
+    board[7][5] = "♝"
+
+    board[0][4] = "♔"
+    board[0][3] = "♕"
+
+    board[7][4] = "♚"
+    board[7][3] = "♛"
+
+    board[1][0] = "♙"
+    board[1][1] = "♙"
+    board[1][2] = "♙"
+    board[1][3] = "♙"
+    board[1][4] = "♙"
+    board[1][5] = "♙"
+    board[1][6] = "♙"
+    board[1][7] = "♙"
+
+    board[6][0] = "♟"
+    board[6][1] = "♟"
+    board[6][2] = "♟"
+    board[6][3] = "♟"
+    board[6][4] = "♟"
+    board[6][5] = "♟"
+    board[6][6] = "♟"
+    board[6][7] = "♟"
+}
+
+fun fillBoardEmptiesCells() {
     for (i in 0..<numRow) {
         for (j in 0..<numCol) {
             if ((j + i) % 2 == 0) {
-                field[i][j] = "██"
+                board[i][j] = "██"
             } else {
-                field[i][j] = "░░"
+                board[i][j] = "░░"
             }
         }
     }
-    return field
 }
 
-fun printField(field: Array<Array<String>>) {
+fun printField() {
+    println()
     for (i in 0..<numRow) {
         for (j in 0..<numCol) {
-            print(field[i][j])
             print(" ")
+            print(board[i][j])
+            if (board[i][j] != "██" || board[i][j] != "░░") {
+
+            } else {
+                print(" ")
+            }
         }
         println()
     }
