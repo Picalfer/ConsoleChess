@@ -1,9 +1,10 @@
 fun main() {
     val board = Board()
     board.printBoard()
-    board.doTurn()
-    board.printBoard()
-
+    while (true) {
+        board.doTurn()
+        board.printBoard()
+    }
 }
 
 
