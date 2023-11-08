@@ -6,8 +6,3 @@ fun main() {
         board.printBoard()
     }
 }
-
-
-
-
-

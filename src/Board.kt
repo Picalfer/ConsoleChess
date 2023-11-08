@@ -1,4 +1,6 @@
+import utils.BoardConstants.BLACK
 import utils.BoardConstants.EMPTY_CELL
+import utils.BoardConstants.WHITE
 import utils.FigureConstants.BLACK_BISHOP
 import utils.FigureConstants.BLACK_KING
 import utils.FigureConstants.BLACK_KNIGHT
@@ -19,6 +21,8 @@ class Board {
     private val board: Array<Array<Cell>> = Array(numRow) { Array(numCol) { Cell() } }
     private val lettersList = arrayOf("A", "B", "C", "D", "E", "F", "G", "H")
     private val figureList = arrayOf("K", "Q", "R", "B", "N", "P")
+    private var turn = 1
+    private var turnColor = WHITE
 
     init {
         fillBoardEmptiesCells()
@@ -29,9 +33,9 @@ class Board {
         for (i in 0..<numRow) {
             for (j in 0..<numCol) {
                 val cell = board[i][j]
-                cell.number = j
+                cell.number = i
                 cell.shownChar = EMPTY_CELL
-                if (i != 0) board[i][j].letter = lettersList[i - 1] else {
+                if (j != 0) board[i][j].letter = lettersList[j - 1] else {
                     board[i][j].letter = "*"
                 }
                 /*if ((j + i) % 2 == 0) {
@@ -42,10 +46,10 @@ class Board {
             }
         }
         for (i in 1..8) {
-            board[0][i].shownChar = "\u202F$i"
+            board[i][0].shownChar = i.toString()
         }
         for (i in lettersList) {
-            board[lettersList.indexOf(i) + 1][0].shownChar = i
+            board[0][lettersList.indexOf(i) + 1].shownChar = "\u202F$i"
         }
 
         board[0][0].shownChar = " "
@@ -81,6 +85,7 @@ class Board {
     }
 
     fun printBoard() {
+        turnColor = if (turn % 2 == 0) BLACK else WHITE
         for (i in 0..<numRow) {
             for (j in 0..<numCol) {
                 val cell = board[i][j]
@@ -96,6 +101,10 @@ class Board {
 
             if (i == 1) {
                 print("       Do your turn, select cell you want to go like this: g2 -> e2")
+            }
+            if (i == 2) {
+                print("                         Now turn $turnColor")
+                turn++
             }
             println()
         }

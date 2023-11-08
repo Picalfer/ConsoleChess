@@ -8,8 +8,8 @@ object BoardConstants {
     const val KNIGHT = "n"
     const val PAWN = "p"
 
-    const val WHITE = "w"
-    const val BLACK = "b"
+    const val WHITE = "WHITE"
+    const val BLACK = "BLACK"
 
     const val EMPTY_CELL = "\u202F "
 }
