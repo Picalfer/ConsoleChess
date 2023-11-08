@@ -1,6 +1,9 @@
 fun main() {
     val board = Board()
-    board.printField()
+    board.printBoard()
+    board.doTurn()
+    board.printBoard()
+
 }
 
 
