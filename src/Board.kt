@@ -21,7 +21,6 @@ class Board {
     private val board: Array<Array<Cell>> = Array(numRow) { Array(numCol) { Cell() } }
     private val lettersList = arrayOf("A", "B", "C", "D", "E", "F", "G", "H")
     private var userInput = ""
-    private val figureList = arrayOf("K", "Q", "R", "B", "N", "P")
     private var turn = 1
     private var turnColor = WHITE
 
@@ -58,30 +57,48 @@ class Board {
 
     private fun makeStartStateBoard() {
         board[1][1].shownChar = BLACK_ROOK
+        board[1][1].color = BLACK
 
         board[1][8].shownChar = BLACK_ROOK
+        board[1][8].color = BLACK
         board[8][8].shownChar = WHITE_ROOK
+        board[8][8].color = WHITE
         board[8][1].shownChar = WHITE_ROOK
+        board[8][1].color = WHITE
 
         board[1][2].shownChar = BLACK_KNIGHT
+        board[1][2].color = BLACK
         board[1][7].shownChar = BLACK_KNIGHT
+        board[1][7].color = BLACK
         board[8][2].shownChar = WHITE_KNIGHT
+        board[8][2].color = WHITE
         board[8][7].shownChar = WHITE_KNIGHT
+        board[8][7].color = WHITE
 
         board[1][3].shownChar = BLACK_BISHOP
+        board[1][3].color = BLACK
         board[1][6].shownChar = BLACK_BISHOP
+        board[1][6].color = BLACK
         board[8][3].shownChar = WHITE_BISHOP
+        board[8][3].color = WHITE
         board[8][6].shownChar = WHITE_BISHOP
+        board[8][6].color = WHITE
 
         board[1][5].shownChar = BLACK_KING
+        board[1][5].color = BLACK
         board[1][4].shownChar = BLACK_QUEEN
+        board[1][4].color = BLACK
 
         board[8][5].shownChar = WHITE_KING
+        board[8][5].color = WHITE
         board[8][4].shownChar = WHITE_QUEEN
+        board[8][4].color = WHITE
 
         for (i in 1..8) {
             board[2][i].shownChar = BLACK_PAWN
+            board[2][i].color = BLACK
             board[7][i].shownChar = WHITE_PAWN
+            board[7][i].color = WHITE
         }
     }
 
@@ -92,6 +109,7 @@ class Board {
                 val cell = board[i][j]
                 print(" ")
                 //print("${board[i][j].letter}${board[i][j].number}")
+                //print("${board[i][j].color}")
                 print(cell.shownChar)
                 if (cell.shownChar != "██" || cell.shownChar != "░░") {
 
@@ -105,7 +123,6 @@ class Board {
             }
             if (i == 2) {
                 print("                         Now turn $turnColor")
-                turn++
             }
             println()
         }
@@ -125,14 +142,48 @@ class Board {
         val letterTo = getLetter(cellToText)
         val numberTo = getNumber(cellToText)
 
-        val cellFrom = Cell(letterFrom, numberFrom)
-        val cellTo = Cell(letterTo, numberTo)
+        val cellFromWithoutColor = Cell(letterFrom, numberFrom)
+        val cellToWithoutColor = Cell(letterTo, numberTo)
 
-        println("Your turn is ${cellFrom.letter}${cellFrom.number} to ${cellTo.letter}${cellTo.number}\n")
+        val colorFrom = getColorOfCell(cellFromWithoutColor)
+        val colorTo = getColorOfCell(cellToWithoutColor)
 
-        val showChar = makeCharFromCell(cellFrom)
+        val cellFrom = Cell(letterFrom, numberFrom, colorFrom)
+        val cellTo = Cell(letterTo, numberTo, colorTo)
 
-        putCharToCell(cellTo, showChar)
+        if (isTurnValid(cellFrom, cellTo)) {
+            println("Your turn is ${cellFrom.letter}${cellFrom.number} to ${cellTo.letter}${cellTo.number}\n")
+            val showChar = makeCharFromCell(cellFrom)
+            putCharToCell(cellTo, showChar)
+            turn++
+        } else {
+            println("You cannot turn that")
+        }
+    }
+
+    private fun getColorOfCell(cell: Cell): String {
+        var color = ""
+        for (i in 0..<numRow) {
+            for (j in 0..<numCol) {
+                if (board[i][j].letter == cell.letter && board[i][j].number == cell.number) {
+                    color = board[i][j].color.toString()
+                }
+            }
+        }
+        return color
+    }
+
+    private fun isTurnValid(cellFrom: Cell, cellTo: Cell): Boolean {
+        if (!checkValidColor(cellFrom)) {
+            println("Now turns $turnColor")
+            return false
+        }
+
+        return true
+    }
+
+    private fun checkValidColor(cellFrom: Cell): Boolean {
+        return cellFrom.color == turnColor
     }
 
     private fun putCharToCell(cell: Cell, showChar: String) {
@@ -184,6 +235,7 @@ class Board {
                 if (board[i][j].letter == cell.letter && board[i][j].number == cell.number) {
                     showChar = board[i][j].shownChar
                     board[i][j].shownChar = EMPTY_CELL
+                    board[i][j].color = null
                 }
             }
         }
