@@ -20,6 +20,7 @@ const val numCol = 9
 class Board {
     private val board: Array<Array<Cell>> = Array(numRow) { Array(numCol) { Cell() } }
     private val lettersList = arrayOf("A", "B", "C", "D", "E", "F", "G", "H")
+    private var userInput = ""
     private val figureList = arrayOf("K", "Q", "R", "B", "N", "P")
     private var turn = 1
     private var turnColor = WHITE
@@ -113,61 +114,79 @@ class Board {
     fun doTurn() {
         println()
         print("Write your turn here: ")
-        var input = readlnOrNull() ?: return
+        userInput = readlnOrNull() ?: return
 
-        var cellFromText = ""
-        var cellToText = ""
-        for (i in input) {
-            if (i == ' ') {
-                cellFromText = input.substringBefore(i)
-                input = input.substringAfter(i)
-                break
-            }
-        }
-        for (i in input) {
-            if (i == ' ') {
-                cellToText = input.substringAfter(i)
-                break
-            }
-        }
-        println("Your turn is $cellFromText to $cellToText\n")
+        val cellFromText = getFirstCellText()
+        val cellToText = getLastCellText()
 
-        var letterFrom = ""
-        var numberFrom = 0
-        for (i in cellFromText) {
-            if (i.isLetter()) letterFrom = i.toString().uppercase()
-            if (i.isDigit()) numberFrom = i.toString().toInt()
-        }
+        val letterFrom = getLetter(cellFromText)
+        val numberFrom = getNumber(cellFromText)
 
-        var letterTo = ""
-        var numberTo = 0
-        for (i in cellToText) {
-            if (i.isLetter()) letterTo = i.toString().uppercase()
-            if (i.isDigit()) numberTo = i.toString().toInt()
-        }
+        val letterTo = getLetter(cellToText)
+        val numberTo = getNumber(cellToText)
 
-        //println("$letterFrom, $numberFrom, $letterTo, $numberTo")
         val cellFrom = Cell(letterFrom, numberFrom)
         val cellTo = Cell(letterTo, numberTo)
 
+        println("Your turn is ${cellFrom.letter}${cellFrom.number} to ${cellTo.letter}${cellTo.number}\n")
+
+        val showChar = makeCharFromCell(cellFrom)
+
+        putCharToCell(cellTo, showChar)
+    }
+
+    private fun putCharToCell(cell: Cell, showChar: String) {
+        for (i in 0..<numRow) {
+            for (j in 0..<numCol) {
+                if (board[i][j].letter == cell.letter && board[i][j].number == cell.number) {
+                    board[i][j].shownChar = showChar
+                }
+            }
+        }
+    }
+
+    private fun getLastCellText(): String {
+        for (i in userInput.reversed()) {
+            if (i == ' ') {
+                return userInput.reversed().substringBefore(i)
+            }
+        }
+        return ""
+    }
+
+    private fun getFirstCellText(): String {
+        for (i in userInput) {
+            if (i == ' ') {
+                return userInput.substringBefore(i)
+            }
+        }
+        return ""
+    }
+
+    private fun getLetter(cellText: String): String {
+        for (i in cellText) {
+            if (i.isLetter()) return i.toString().uppercase()
+        }
+        return ""
+    }
+
+    private fun getNumber(cellText: String): Int {
+        for (i in cellText) {
+            if (i.isDigit()) return i.toString().toInt()
+        }
+        return 0
+    }
+
+    private fun makeCharFromCell(cell: Cell): String {
         var showChar = ""
         for (i in 0..<numRow) {
             for (j in 0..<numCol) {
-                val cell = board[i][j]
-                if (cell.letter == cellFrom.letter && cell.number == cellFrom.number) {
+                if (board[i][j].letter == cell.letter && board[i][j].number == cell.number) {
                     showChar = board[i][j].shownChar
                     board[i][j].shownChar = EMPTY_CELL
                 }
             }
         }
-
-        for (i in 0..<numRow) {
-            for (j in 0..<numCol) {
-                val cell = board[i][j]
-                if (cell.letter == cellTo.letter && cell.number == cellTo.number) {
-                    board[i][j].shownChar = showChar
-                }
-            }
-        }
+        return showChar
     }
 }
