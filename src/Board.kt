@@ -1,3 +1,6 @@
+import figures.Cell
+import figures.EmptyCell
+import figures.Pawn
 import utils.BoardConstants.BLACK
 import utils.BoardConstants.BOARD_LETTERS
 import utils.BoardConstants.EMPTY_CELL
@@ -104,19 +107,10 @@ class Board {
             for (j in 0..<NUM_COL) {
                 val cell = board[i][j]
                 print(" ")
-                // Check letters and numbers og cells
-                //print("${board[i][j].letter}${board[i][j].number}")
-
-                // Check colors of cells
-                //print("${board[i][j].color}")
                 print(cell.shownChar)
-                if (cell.shownChar != "██" || cell.shownChar != "░░") {
-
-                } else {
-                    print(" ")
-                }
+                // For wide variant
+                //print(" ")
             }
-
             if (i == 1) {
                 print("       Do your turn, select cell you want to go like this: g2 -> e2")
             }
@@ -139,13 +133,8 @@ class Board {
                 // Check colors of cells
                 print("${board[i][j].color}")
                 print(cell.shownChar)
-                if (cell.shownChar != "██" || cell.shownChar != "░░") {
-
-                } else {
-                    print(" ")
-                }
+                print(" ")
             }
-
             if (i == 1) {
                 print("                         TEST PRINT")
             }
@@ -220,16 +209,46 @@ class Board {
     }
 
     private fun isTurnValid(cellFrom: Cell, cellTo: Cell): Boolean {
-        if (!checkValidColor(cellFrom)) {
+        if (compareCellsByNumberAndLetter(cellFrom, cellTo)) {
+            println("You can't turn to the same cell")
+            return false
+        }
+
+        if (!isCellExist(cellFrom) || !isCellExist(cellTo)) {
+            println("This cell doesn't exist")
+            return false
+        }
+
+        if (!isValidColorCellFrom(cellFrom)) {
             println("Now turns $turnColor")
+            return false
+        }
+
+        if (!isValidColorCellTo(cellTo)) {
+            println("You can't turn to figure of your color")
             return false
         }
 
         return true
     }
 
-    private fun checkValidColor(cellFrom: Cell): Boolean {
+    private fun isCellExist(cellFrom: Cell): Boolean {
+        for (i in 0..<NUM_ROW) {
+            for (j in 0..<NUM_COL) {
+                if (board[i][j].letter == cellFrom.letter && board[i][j].number == cellFrom.number) {
+                    return true
+                }
+            }
+        }
+        return false
+    }
+
+    private fun isValidColorCellFrom(cellFrom: Cell): Boolean {
         return cellFrom.color == turnColor
+    }
+
+    private fun isValidColorCellTo(cellTo: Cell): Boolean {
+        return cellTo.color != turnColor
     }
 
     private fun putCharToCell(cell: Cell, showChar: String) {
@@ -305,5 +324,9 @@ class Board {
     private fun clearCell(row: Int, col: Int) {
         board[row][col].color = null
         board[row][col].shownChar = EMPTY_CELL
+    }
+
+    private fun compareCellsByNumberAndLetter(cell1: Cell, cell2: Cell): Boolean {
+        return cell1.letter == cell2.letter && cell1.number == cell2.number
     }
 }
