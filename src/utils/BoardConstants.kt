@@ -11,5 +11,10 @@ object BoardConstants {
     const val WHITE = "WHITE"
     const val BLACK = "BLACK"
 
+    const val NUM_ROW = 9
+    const val NUM_COL = 9
+
+    val BOARD_LETTERS = arrayOf("A", "B", "C", "D", "E", "F", "G", "H")
+
     const val EMPTY_CELL = "\u202F "
 }

@@ -1,10 +1,12 @@
 import utils.BoardConstants.BLACK
+import utils.BoardConstants.BOARD_LETTERS
 import utils.BoardConstants.EMPTY_CELL
+import utils.BoardConstants.NUM_COL
+import utils.BoardConstants.NUM_ROW
 import utils.BoardConstants.WHITE
 import utils.FigureConstants.BLACK_BISHOP
 import utils.FigureConstants.BLACK_KING
 import utils.FigureConstants.BLACK_KNIGHT
-import utils.FigureConstants.BLACK_PAWN
 import utils.FigureConstants.BLACK_QUEEN
 import utils.FigureConstants.BLACK_ROOK
 import utils.FigureConstants.WHITE_BISHOP
@@ -14,12 +16,8 @@ import utils.FigureConstants.WHITE_PAWN
 import utils.FigureConstants.WHITE_QUEEN
 import utils.FigureConstants.WHITE_ROOK
 
-const val numRow = 9
-const val numCol = 9
-
 class Board {
-    private val board: Array<Array<Cell>> = Array(numRow) { Array(numCol) { Cell() } }
-    private val lettersList = arrayOf("A", "B", "C", "D", "E", "F", "G", "H")
+    private val board: Array<Array<Cell>> = Array(NUM_ROW) { Array(NUM_COL) { EmptyCell() } }
     private var userInput = ""
     private var turn = 1
     private var turnColor = WHITE
@@ -30,12 +28,11 @@ class Board {
     }
 
     private fun fillBoardEmptiesCells() {
-        for (i in 0..<numRow) {
-            for (j in 0..<numCol) {
+        for (i in 0..<NUM_ROW) {
+            for (j in 0..<NUM_COL) {
                 val cell = board[i][j]
                 cell.number = i
-                cell.shownChar = EMPTY_CELL
-                if (j != 0) board[i][j].letter = lettersList[j - 1] else {
+                if (j != 0) board[i][j].letter = BOARD_LETTERS[j - 1] else {
                     board[i][j].letter = "*"
                 }
                 /*if ((j + i) % 2 == 0) {
@@ -48,8 +45,8 @@ class Board {
         for (i in 1..8) {
             board[i][0].shownChar = i.toString()
         }
-        for (i in lettersList) {
-            board[0][lettersList.indexOf(i) + 1].shownChar = "\u202F$i"
+        for (i in BOARD_LETTERS) {
+            board[0][BOARD_LETTERS.indexOf(i) + 1].shownChar = "\u202F$i"
         }
 
         board[0][0].shownChar = " "
@@ -95,8 +92,7 @@ class Board {
         board[8][4].color = WHITE
 
         for (i in 1..8) {
-            board[2][i].shownChar = BLACK_PAWN
-            board[2][i].color = BLACK
+            board[2][i] = Pawn(BLACK, board[2][i].letter, board[2][i].number)
             board[7][i].shownChar = WHITE_PAWN
             board[7][i].color = WHITE
         }
@@ -104,11 +100,14 @@ class Board {
 
     fun printBoard() {
         turnColor = if (turn % 2 == 0) BLACK else WHITE
-        for (i in 0..<numRow) {
-            for (j in 0..<numCol) {
+        for (i in 0..<NUM_ROW) {
+            for (j in 0..<NUM_COL) {
                 val cell = board[i][j]
                 print(" ")
+                // Check letters and numbers og cells
                 //print("${board[i][j].letter}${board[i][j].number}")
+
+                // Check colors of cells
                 //print("${board[i][j].color}")
                 print(cell.shownChar)
                 if (cell.shownChar != "██" || cell.shownChar != "░░") {
@@ -128,10 +127,45 @@ class Board {
         }
     }
 
+    private fun printBoardTest() {
+        turnColor = if (turn % 2 == 0) BLACK else WHITE
+        for (i in 0..<NUM_ROW) {
+            for (j in 0..<NUM_COL) {
+                val cell = board[i][j]
+                print(" ")
+                // Check letters and numbers og cells
+                print("${board[i][j].letter}${board[i][j].number}")
+
+                // Check colors of cells
+                print("${board[i][j].color}")
+                print(cell.shownChar)
+                if (cell.shownChar != "██" || cell.shownChar != "░░") {
+
+                } else {
+                    print(" ")
+                }
+            }
+
+            if (i == 1) {
+                print("                         TEST PRINT")
+            }
+            if (i == 2) {
+                print("                         TURN COLOR IS $turnColor")
+            }
+            println()
+        }
+        println()
+        readlnOrNull()
+    }
+
     fun doTurn() {
         println()
         print("Write your turn here: ")
         userInput = readlnOrNull() ?: return
+
+        if (userInput.lowercase() == "test") {
+            printBoardTest()
+        }
 
         val cellFromText = getFirstCellText()
         val cellToText = getLastCellText()
@@ -142,29 +176,41 @@ class Board {
         val letterTo = getLetter(cellToText)
         val numberTo = getNumber(cellToText)
 
-        val cellFromWithoutColor = Cell(letterFrom, numberFrom)
-        val cellToWithoutColor = Cell(letterTo, numberTo)
-
-        val colorFrom = getColorOfCell(cellFromWithoutColor)
-        val colorTo = getColorOfCell(cellToWithoutColor)
-
-        val cellFrom = Cell(letterFrom, numberFrom, colorFrom)
-        val cellTo = Cell(letterTo, numberTo, colorTo)
+        val cellFrom = getCell(letterFrom, numberFrom)
+        val cellTo = getCell(letterTo, numberTo)
 
         if (isTurnValid(cellFrom, cellTo)) {
             println("Your turn is ${cellFrom.letter}${cellFrom.number} to ${cellTo.letter}${cellTo.number}\n")
-            val showChar = makeCharFromCell(cellFrom)
-            putCharToCell(cellTo, showChar)
+
+            putCellToBoardFromCell(cellTo, cellFrom)
+
             turn++
         } else {
             println("You cannot turn that")
         }
     }
 
+    private fun getCell(letterFrom: String, numberFrom: Int): Cell {
+        val cell = Cell(letterFrom, numberFrom)
+        var color = ""
+        var showChar = ""
+        for (i in 0..<NUM_ROW) {
+            for (j in 0..<NUM_COL) {
+                if (board[i][j].letter == cell.letter && board[i][j].number == cell.number) {
+                    color = board[i][j].color.toString()
+                    showChar = board[i][j].shownChar.toString()
+                }
+            }
+        }
+        cell.color = color
+        cell.shownChar = showChar
+        return cell
+    }
+
     private fun getColorOfCell(cell: Cell): String {
         var color = ""
-        for (i in 0..<numRow) {
-            for (j in 0..<numCol) {
+        for (i in 0..<NUM_ROW) {
+            for (j in 0..<NUM_COL) {
                 if (board[i][j].letter == cell.letter && board[i][j].number == cell.number) {
                     color = board[i][j].color.toString()
                 }
@@ -187,8 +233,8 @@ class Board {
     }
 
     private fun putCharToCell(cell: Cell, showChar: String) {
-        for (i in 0..<numRow) {
-            for (j in 0..<numCol) {
+        for (i in 0..<NUM_ROW) {
+            for (j in 0..<NUM_COL) {
                 if (board[i][j].letter == cell.letter && board[i][j].number == cell.number) {
                     board[i][j].shownChar = showChar
                 }
@@ -230,15 +276,34 @@ class Board {
 
     private fun makeCharFromCell(cell: Cell): String {
         var showChar = ""
-        for (i in 0..<numRow) {
-            for (j in 0..<numCol) {
+        for (i in 0..<NUM_ROW) {
+            for (j in 0..<NUM_COL) {
                 if (board[i][j].letter == cell.letter && board[i][j].number == cell.number) {
-                    showChar = board[i][j].shownChar
+                    showChar = board[i][j].shownChar.toString()
                     board[i][j].shownChar = EMPTY_CELL
                     board[i][j].color = null
                 }
             }
         }
         return showChar
+    }
+
+    private fun putCellToBoardFromCell(cellTo: Cell, cellFrom: Cell) {
+        for (i in 0..<NUM_ROW) {
+            for (j in 0..<NUM_COL) {
+                if (board[i][j].letter == cellTo.letter && board[i][j].number == cellTo.number) {
+                    board[i][j].color = cellFrom.color
+                    board[i][j].shownChar = cellFrom.shownChar
+                }
+                if (board[i][j].letter == cellFrom.letter && board[i][j].number == cellFrom.number) {
+                    clearCell(i, j)
+                }
+            }
+        }
+    }
+
+    private fun clearCell(row: Int, col: Int) {
+        board[row][col].color = null
+        board[row][col].shownChar = EMPTY_CELL
     }
 }
